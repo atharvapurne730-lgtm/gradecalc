@@ -1,0 +1,677 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GradeCalc - Student Grade Calculator</title>
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --navy: #17264b;
+      --navy-dark: #0f1a38;
+      --text: #0f1a38;
+      --muted: #5a6479;
+      --border: #d5dcea;
+      --blue: #2447c8;
+      --blue-soft: #e6eefc;
+      --gold: #f5b82e;
+      --green: #1f9d55;
+      --amber: #e69a0c;
+      --orange: #e8710a;
+      --red: #c62828;
+    }
+
+    body {
+      font-family: "Segoe UI", system-ui, -apple-system, Roboto, Arial, sans-serif;
+      color: var(--text);
+      background: linear-gradient(180deg, #e9f0ff 0%, #f7f9ff 55%, #ffffff 100%);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .hidden { display: none; }
+
+    /* ================= NAVBAR ================= */
+    .navbar {
+      background: var(--navy);
+      color: #fff;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 16px 40px;
+      box-shadow: 0 2px 10px rgba(15, 26, 56, 0.25);
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 1.8rem;
+      font-weight: 700;
+      letter-spacing: 0.3px;
+    }
+
+    .logo svg { width: 46px; height: 36px; }
+    .tagline { font-size: 1.05rem; opacity: 0.95; }
+
+    /* ================= MAIN ================= */
+    .container {
+      width: 100%;
+      max-width: 920px;
+      margin: 0 auto;
+      padding: 30px 20px 40px;
+      text-align: center;
+      flex: 1;
+    }
+
+    .hero-cap { width: 220px; height: 125px; }
+
+    h1 {
+      font-size: 2.7rem;
+      font-weight: 800;
+      margin-top: 4px;
+    }
+
+    .subtitle {
+      font-size: 1.15rem;
+      color: var(--muted);
+      margin: 6px 0 28px;
+    }
+
+    /* ================= FORM CARD ================= */
+    .card {
+      background: #fff;
+      border-radius: 20px;
+      padding: 26px;
+      box-shadow: 0 8px 28px rgba(30, 50, 110, 0.10);
+      border: 1px solid #e8edf7;
+      text-align: left;
+    }
+
+    .card-title {
+      font-size: 1.15rem;
+      font-weight: 700;
+      margin-bottom: 18px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .card-title small {
+      font-weight: 500;
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+    /* ---------- Subject boxes ---------- */
+    .subject-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+    }
+
+    .subject {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      background: #f8faff;
+      border: 1.5px solid var(--border);
+      border-radius: 16px;
+      padding: 14px;
+      transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+    }
+
+    .subject:focus-within {
+      border-color: var(--blue);
+      background: #fff;
+      box-shadow: 0 0 0 4px rgba(36, 71, 200, 0.12);
+    }
+
+    .subject.invalid {
+      border-color: var(--red);
+      background: #fff6f6;
+      box-shadow: 0 0 0 4px rgba(198, 40, 40, 0.12);
+    }
+
+    .icon {
+      flex: 0 0 48px;
+      height: 48px;
+      border-radius: 14px;
+      background: var(--blue-soft);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+    }
+
+    .subject-body { flex: 1; min-width: 0; }
+
+    .subject label {
+      display: block;
+      font-weight: 700;
+      font-size: 1rem;
+      margin-bottom: 6px;
+    }
+
+    .input-wrap { position: relative; }
+
+    .input-wrap input {
+      width: 100%;
+      padding: 10px 46px 10px 12px;
+      font-size: 1rem;
+      font-family: inherit;
+      color: var(--text);
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      outline: none;
+    }
+
+    .input-wrap input:focus { border-color: var(--blue); }
+
+    .input-wrap span {
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 0.85rem;
+      color: var(--muted);
+      pointer-events: none;
+    }
+
+    .input-wrap input::-webkit-outer-spin-button,
+    .input-wrap input::-webkit-inner-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+    .input-wrap input[type=number] { -moz-appearance: textfield; }
+
+    /* ---------- Buttons ---------- */
+    .buttons {
+      display: flex;
+      gap: 12px;
+      margin-top: 22px;
+    }
+
+    .btn {
+      padding: 15px;
+      font-size: 1.15rem;
+      font-weight: 700;
+      font-family: inherit;
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.1s, box-shadow 0.2s;
+    }
+
+    .btn:active { transform: scale(0.98); }
+
+    .btn-primary {
+      flex: 1;
+      color: #fff;
+      background: var(--navy);
+      box-shadow: 0 6px 16px rgba(23, 38, 75, 0.28);
+    }
+
+    .btn-primary:hover { background: var(--navy-dark); }
+
+    .btn-secondary {
+      width: 130px;
+      color: var(--navy);
+      background: #eef2fb;
+      border: 1px solid var(--border);
+    }
+
+    .btn-secondary:hover { background: #e0e7f6; }
+
+    .error {
+      color: var(--red);
+      font-size: 0.95rem;
+      font-weight: 600;
+      margin-top: 12px;
+      min-height: 1.3em;
+      text-align: center;
+    }
+
+    /* ================= RESULT ================= */
+    .result {
+      background: #dce8fb;
+      border: 1px solid #bfd2f1;
+      border-radius: 18px;
+      margin: 26px auto 0;
+      display: flex;
+      padding: 20px 0;
+    }
+
+    .result-item {
+      flex: 1;
+      text-align: center;
+    }
+
+    .result-item + .result-item { border-left: 2px solid #a3b8e0; }
+
+    .result-item h3 {
+      font-size: 1.2rem;
+      font-weight: 600;
+    }
+
+    .value {
+      font-size: 2.4rem;
+      font-weight: 800;
+      color: var(--blue);
+      line-height: 1.35;
+    }
+
+    .value.pass { color: var(--green); }
+    .value.fail { color: var(--red); }
+
+    .remark {
+      margin-top: 14px;
+      font-weight: 600;
+      color: var(--muted);
+      min-height: 1.4em;
+    }
+
+    /* ================= BREAKDOWN ================= */
+    .breakdown { margin-top: 24px; }
+
+    .breakdown h2, .scale h2 {
+      font-size: 1.2rem;
+      margin-bottom: 16px;
+    }
+
+    .bar-row {
+      display: grid;
+      grid-template-columns: 110px 1fr 56px;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+
+    .bar-name { font-weight: 600; }
+
+    .bar-track {
+      background: #e8edf7;
+      border-radius: 20px;
+      height: 14px;
+      overflow: hidden;
+    }
+
+    .bar-fill {
+      height: 100%;
+      width: 0;
+      border-radius: 20px;
+      transition: width 0.7s ease;
+    }
+
+    .bar-fill.high { background: var(--green); }
+    .bar-fill.mid  { background: var(--amber); }
+    .bar-fill.low  { background: var(--orange); }
+    .bar-fill.fail { background: var(--red); }
+
+    .bar-mark { text-align: right; font-weight: 700; }
+
+    .total-line {
+      margin-top: 6px;
+      padding-top: 14px;
+      border-top: 1px solid #e3e8f3;
+      font-weight: 600;
+      color: var(--muted);
+    }
+
+    /* ================= GRADE SCALE ================= */
+    .scale { margin-top: 30px; }
+
+    .scale-row {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    .scale-row span {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 6px 15px;
+      font-size: 0.95rem;
+      color: var(--muted);
+    }
+
+    .scale-row b { color: var(--blue); margin-right: 4px; }
+
+    .footer {
+      text-align: center;
+      padding: 16px;
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+    /* ================= RESPONSIVE ================= */
+    @media (max-width: 800px) {
+      .subject-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    @media (max-width: 560px) {
+      .navbar { flex-direction: column; gap: 6px; padding: 14px; }
+      .subject-grid { grid-template-columns: 1fr; }
+      h1 { font-size: 1.9rem; }
+      .subtitle { font-size: 1rem; }
+      .result-item h3 { font-size: 0.95rem; }
+      .value { font-size: 1.7rem; }
+      .bar-row { grid-template-columns: 88px 1fr 48px; }
+      .btn-secondary { width: 100px; }
+      .card { padding: 18px; }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- ================= NAVBAR ================= -->
+  <header class="navbar">
+    <div class="logo">
+      <svg viewBox="0 0 48 38" fill="#fff" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <polygon points="24,2 46,13 24,24 2,13" />
+        <path d="M11 20 V29 C11 33 37 33 37 29 V20 L24 27 Z" />
+        <rect x="42" y="14" width="3" height="14" rx="1.5" />
+      </svg>
+      GradeCalc
+    </div>
+    <div class="tagline">Check Your Grade Instantly ✨</div>
+  </header>
+
+  <!-- ================= MAIN ================= -->
+  <main class="container">
+
+    <svg class="hero-cap" viewBox="0 0 240 140" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <path d="M60 68 V104 C60 128 180 128 180 104 V68 L120 92 Z" fill="#1b2a56" />
+      <polygon points="12,52 118,14 214,50 118,88" fill="#1b2a56" />
+      <circle cx="118" cy="51" r="6" fill="#3a4a7a" />
+      <path d="M118 51 L190 62 L190 102" stroke="#f5b82e" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round" />
+      <path d="M184 100 H196 L199 126 H181 Z" fill="#f5b82e" />
+      <line x1="196" y1="8" x2="202" y2="24" stroke="#f5b82e" stroke-width="4" stroke-linecap="round" />
+      <line x1="212" y1="30" x2="228" y2="22" stroke="#f5b82e" stroke-width="4" stroke-linecap="round" />
+      <line x1="208" y1="48" x2="226" y2="52" stroke="#f5b82e" stroke-width="4" stroke-linecap="round" />
+    </svg>
+
+    <h1>Student Grade Calculator</h1>
+    <p class="subtitle">Enter your marks and get your percentage and grade!</p>
+
+    <!-- ========== FORM ========== -->
+    <section class="card">
+      <div class="card-title">
+        Enter Marks <small>Each subject out of 100</small>
+      </div>
+
+      <div class="subject-grid">
+
+        <div class="subject">
+          <div class="icon">📐</div>
+          <div class="subject-body">
+            <label for="maths">Maths</label>
+            <div class="input-wrap">
+              <input type="number" id="maths" data-name="Maths" placeholder="Enter marks" min="0" max="100" step="any">
+              <span>/100</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="subject">
+          <div class="icon">⚛️</div>
+          <div class="subject-body">
+            <label for="physics">Physics</label>
+            <div class="input-wrap">
+              <input type="number" id="physics" data-name="Physics" placeholder="Enter marks" min="0" max="100" step="any">
+              <span>/100</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="subject">
+          <div class="icon">🧪</div>
+          <div class="subject-body">
+            <label for="chemistry">Chemistry</label>
+            <div class="input-wrap">
+              <input type="number" id="chemistry" data-name="Chemistry" placeholder="Enter marks" min="0" max="100" step="any">
+              <span>/100</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="subject">
+          <div class="icon">📖</div>
+          <div class="subject-body">
+            <label for="language">Language</label>
+            <div class="input-wrap">
+              <input type="number" id="language" data-name="Language" placeholder="Enter marks" min="0" max="100" step="any">
+              <span>/100</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="subject">
+          <div class="icon">💻</div>
+          <div class="subject-body">
+            <label for="computer">Computer</label>
+            <div class="input-wrap">
+              <input type="number" id="computer" data-name="Computer" placeholder="Enter marks" min="0" max="100" step="any">
+              <span>/100</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="subject">
+          <div class="icon">🔌</div>
+          <div class="subject-body">
+            <label for="electronics">Electronics</label>
+            <div class="input-wrap">
+              <input type="number" id="electronics" data-name="Electronics" placeholder="Enter marks" min="0" max="100" step="any">
+              <span>/100</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="buttons">
+        <button class="btn btn-primary" id="calcBtn" type="button">Calculate Grade</button>
+        <button class="btn btn-secondary" id="resetBtn" type="button">Reset</button>
+      </div>
+      <p class="error" id="error"></p>
+    </section>
+
+    <!-- ========== RESULT ========== -->
+    <section class="result">
+      <div class="result-item">
+        <h3>Percentage</h3>
+        <div class="value" id="percentage">0%</div>
+      </div>
+      <div class="result-item">
+        <h3>Grade</h3>
+        <div class="value" id="grade">-</div>
+      </div>
+      <div class="result-item">
+        <h3>Result</h3>
+        <div class="value" id="status">-</div>
+      </div>
+    </section>
+    <p class="remark" id="remark"></p>
+
+    <!-- ========== SUBJECT-WISE BARS ========== -->
+    <section class="card breakdown hidden" id="breakdown">
+      <h2>Subject-wise Marks</h2>
+      <div id="bars"></div>
+      <p class="total-line" id="totalLine"></p>
+    </section>
+
+    <!-- ========== GRADE SCALE ========== -->
+    <section class="scale">
+      <h2>Grade Scale</h2>
+      <div class="scale-row">
+        <span><b>A</b> 90+</span>
+        <span><b>B</b> 80–89</span>
+        <span><b>C</b> 70–79</span>
+        <span><b>D</b> 60–69</span>
+        <span><b>E</b> 40–59</span>
+        <span><b>F</b> below 40</span>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="footer">GradeCalc &middot; Student Grade Calculator</footer>
+
+  <script>
+    // All the subject boxes on the page
+    var inputs = Array.prototype.slice.call(document.querySelectorAll(".subject input"));
+
+    var calcBtn = document.getElementById("calcBtn");
+    var resetBtn = document.getElementById("resetBtn");
+    var errorBox = document.getElementById("error");
+    var percentageEl = document.getElementById("percentage");
+    var gradeEl = document.getElementById("grade");
+    var statusEl = document.getElementById("status");
+    var remarkEl = document.getElementById("remark");
+    var breakdownEl = document.getElementById("breakdown");
+    var barsEl = document.getElementById("bars");
+    var totalLineEl = document.getElementById("totalLine");
+
+    // Grade from percentage
+    function getGrade(p) {
+      if (p >= 90) return { grade: "A", remark: "Excellent work! 🌟" };
+      if (p >= 80) return { grade: "B", remark: "Very good! 👏" };
+      if (p >= 70) return { grade: "C", remark: "Good job! 👍" };
+      if (p >= 60) return { grade: "D", remark: "You can do better. 💪" };
+      if (p >= 40) return { grade: "E", remark: "Passed, but work harder. 📚" };
+      return { grade: "F", remark: "Failed. Don't give up! 🔁" };
+    }
+
+    // Colour of each progress bar
+    function barClass(marks) {
+      if (marks >= 70) return "high";
+      if (marks >= 50) return "mid";
+      if (marks >= 40) return "low";
+      return "fail";
+    }
+
+    // Counting animation for the percentage
+    function animatePercentage(target) {
+      var duration = 600;
+      var start = performance.now();
+
+      function step(now) {
+        var progress = Math.min((now - start) / duration, 1);
+        percentageEl.textContent = (target * progress).toFixed(2) + "%";
+        if (progress < 1) requestAnimationFrame(step);
+      }
+      requestAnimationFrame(step);
+    }
+
+    // Subject-wise bars
+    function showBreakdown(list, total) {
+      barsEl.innerHTML = "";
+
+      list.forEach(function (item) {
+        var row = document.createElement("div");
+        row.className = "bar-row";
+        row.innerHTML =
+          '<span class="bar-name">' + item.name + "</span>" +
+          '<div class="bar-track"><div class="bar-fill ' + barClass(item.marks) + '"></div></div>' +
+          '<span class="bar-mark">' + item.marks + "</span>";
+        barsEl.appendChild(row);
+
+        var fill = row.querySelector(".bar-fill");
+        setTimeout(function () { fill.style.width = item.marks + "%"; }, 50);
+      });
+
+      totalLineEl.textContent = "Total: " + total.toFixed(2) + " / " + (inputs.length * 100);
+      breakdownEl.classList.remove("hidden");
+    }
+
+    // Main calculation
+    function calculate() {
+      errorBox.textContent = "";
+      var list = [];
+      var total = 0;
+      var firstBad = null;
+      var message = "";
+
+      inputs.forEach(function (input) {
+        var text = input.value.trim();
+        var marks = Number(text);
+        var box = input.closest(".subject");
+        box.classList.remove("invalid");
+
+        if (text === "") {
+          box.classList.add("invalid");
+          if (!firstBad) { firstBad = input; message = "Please enter marks for all subjects."; }
+        } else if (isNaN(marks) || marks < 0 || marks > 100) {
+          box.classList.add("invalid");
+          if (!firstBad) { firstBad = input; message = "Marks must be between 0 and 100."; }
+        } else {
+          list.push({ name: input.getAttribute("data-name"), marks: marks });
+          total += marks;
+        }
+      });
+
+      if (firstBad) {
+        errorBox.textContent = message;
+        firstBad.focus();
+        return;
+      }
+
+      var percentage = total / inputs.length;
+      var result = getGrade(percentage);
+      var passed = result.grade !== "F";
+
+      animatePercentage(percentage);
+      gradeEl.textContent = result.grade;
+      statusEl.textContent = passed ? "Pass" : "Fail";
+      statusEl.className = "value " + (passed ? "pass" : "fail");
+      remarkEl.textContent = result.remark;
+
+      showBreakdown(list, total);
+    }
+
+    // Reset
+    function resetAll() {
+      inputs.forEach(function (input) {
+        input.value = "";
+        input.closest(".subject").classList.remove("invalid");
+      });
+
+      errorBox.textContent = "";
+      percentageEl.textContent = "0%";
+      gradeEl.textContent = "-";
+      statusEl.textContent = "-";
+      statusEl.className = "value";
+      remarkEl.textContent = "";
+      breakdownEl.classList.add("hidden");
+      barsEl.innerHTML = "";
+      inputs[0].focus();
+    }
+
+    // Events
+    calcBtn.addEventListener("click", calculate);
+    resetBtn.addEventListener("click", resetAll);
+
+    inputs.forEach(function (input) {
+      input.addEventListener("keydown", function (e) {
+        if (e.key === "Enter") calculate();
+      });
+      input.addEventListener("input", function () {
+        input.closest(".subject").classList.remove("invalid");
+      });
+    });
+  </script>
+
+</body>
+</html>
